@@ -9,10 +9,9 @@ extends Node2D
 	preload("res://Scenes/obstacles/berm_small.tscn"),
 	preload("res://Scenes/obstacles/berm_wide.tscn"),
 	preload("res://Scenes/obstacles/wall_low.tscn"),
-	preload("res://Scenes/obstacles/wall_tall.tscn"),
 	preload("res://Scenes/obstacles/floating_platform.tscn"),
 ]
-@export var preview_scene_index := 3
+@export var preview_scene_index := 2
 @export var min_spawn_interval := 2.0
 @export var max_spawn_interval := 4.5
 @export var spawn_beyond_screen_min := 120.0
@@ -21,6 +20,8 @@ extends Node2D
 @export var cleanup_behind_distance := 700.0
 @export var max_active_obstacles := 24
 @export var show_editor_preview := true
+## Slight bury into runway grass art (keep small now that obstacles have tall bodies below).
+@export_range(0.0, 64.0, 1.0) var ground_overlap_pixels := 4.0
 
 const TILE_SIZE := float(TerrainCatalog.TILE_SIZE.x)
 const EDITOR_PREVIEW_NAME := "EditorPreview"
@@ -100,17 +101,26 @@ func _spawn_scene_at(spawn_x: float, scene: PackedScene, custom_name: String = "
 	if scene == null:
 		return
 
-	var surface_y := _get_ground_surface_y_at(spawn_x)
+	var tile_top_y := _get_ground_tile_top_y_at(spawn_x)
 	var obstacle := scene.instantiate()
 	if custom_name != "":
 		obstacle.name = custom_name
 
-	var spawn_y := surface_y
+	var spawn_y := tile_top_y
 	if obstacle.has_method("is_floating") and obstacle.is_floating():
 		var elevation := 0
 		if "elevation_tiles" in obstacle:
 			elevation = obstacle.elevation_tiles
 		spawn_y -= float(elevation) * TILE_SIZE
+	else:
+		var bottom_y := 0.0
+		if obstacle.has_method("get_bottom_extent_y"):
+			bottom_y = obstacle.get_bottom_extent_y()
+		var attach_offset := 0.0
+		if "ground_attach_offset" in obstacle:
+			attach_offset = obstacle.ground_attach_offset
+		var grass_line_y := tile_top_y + TerrainCatalog.RUNWAY_GRASS_LINE_Y
+		spawn_y = grass_line_y - bottom_y + ground_overlap_pixels - attach_offset
 
 	obstacle.global_position = Vector2(spawn_x, spawn_y)
 	add_child(obstacle)
@@ -154,7 +164,7 @@ func _get_offscreen_spawn_x() -> float:
 	return left_edge - beyond
 
 
-func _get_ground_surface_y_at(world_x: float) -> float:
+func _get_ground_tile_top_y_at(world_x: float) -> float:
 	var ground := _ground if _ground else get_node_or_null(ground_path) as Node2D
 	if ground and ground.has_node("GroundLayer"):
 		var layer := ground.get_node("GroundLayer") as TileMapLayer

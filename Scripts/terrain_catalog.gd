@@ -7,6 +7,8 @@ enum TerrainStyle {
 }
 
 const TILE_SIZE := Vector2i(128, 128)
+## Pixels below the top of a runway tile where the visible grass line sits (matches tileset collider).
+const RUNWAY_GRASS_LINE_Y := 41.0
 
 const THEME_DIRS := {
 	TerrainStyle.LIGHT_GREEN_GRASS: "res://Assets/terrain/light_green_grass/",

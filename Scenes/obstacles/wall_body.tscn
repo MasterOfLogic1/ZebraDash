@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://b1v26s3jk3s5a"]
+
+[ext_resource type="Texture2D" uid="uid://058ukb3ncqbk" path="res://Assets/terrain/light_green_grass/flat_color_inner_fill.png" id="1_hkxuh"]
+[ext_resource type="Texture2D" uid="uid://dl1vekww7w4po" path="res://Assets/terrain/light_green_grass/left_edge_rock_1.png" id="2_o45ei"]
+[ext_resource type="Texture2D" uid="uid://cu1v3oak6lh2l" path="res://Assets/terrain/light_green_grass/right_edge_rock_2.png" id="3_eimr6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hkxuh"]
+size = Vector2(449, 501)
+
+[node name="StaticBody2D" type="StaticBody2D" unique_id=1135241759]
+
+[node name="FlatColorInnerFill" type="Sprite2D" parent="." unique_id=979217825]
+position = Vector2(206, 52.500015)
+scale = Vector2(2.8125, 3.8671877)
+texture = ExtResource("1_hkxuh")
+
+[node name="LeftEdgeRock1" type="Sprite2D" parent="." unique_id=1803784376]
+position = Vector2(21, -136)
+texture = ExtResource("2_o45ei")
+
+[node name="LeftEdgeRock2" type="Sprite2D" parent="." unique_id=1493159890]
+position = Vector2(23, -13)
+texture = ExtResource("2_o45ei")
+
+[node name="LeftEdgeRock3" type="Sprite2D" parent="." unique_id=21751021]
+position = Vector2(22, 114)
+texture = ExtResource("2_o45ei")
+
+[node name="LeftEdgeRock4" type="Sprite2D" parent="." unique_id=1289898397]
+position = Vector2(22, 236)
+texture = ExtResource("2_o45ei")
+
+[node name="RightEdgeRock2" type="Sprite2D" parent="." unique_id=2036424162]
+position = Vector2(404, -130)
+texture = ExtResource("3_eimr6")
+
+[node name="RightEdgeRock3" type="Sprite2D" parent="." unique_id=485460127]
+position = Vector2(406, -2)
+texture = ExtResource("3_eimr6")
+
+[node name="RightEdgeRock4" type="Sprite2D" parent="." unique_id=993237711]
+position = Vector2(408, 123)
+texture = ExtResource("3_eimr6")
+
+[node name="RightEdgeRock5" type="Sprite2D" parent="." unique_id=580572175]
+position = Vector2(409, 238)
+texture = ExtResource("3_eimr6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1803834403]
+position = Vector2(203.5, 54.5)
+shape = SubResource("RectangleShape2D_hkxuh")

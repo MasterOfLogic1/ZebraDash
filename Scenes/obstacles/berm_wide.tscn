@@ -1,39 +1,42 @@
-[gd_scene load_steps=7 format=3 uid="uid://obstacle_berm_wide"]
+[gd_scene format=3 uid="uid://dlr5yjsyl0a7i"]
 
-[ext_resource type="Script" path="res://Scripts/obstacle.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://Assets/terrain/light_green_grass/top_2.png" id="2_tex"]
-[ext_resource type="Texture2D" path="res://Assets/terrain/light_green_grass/top_3.png" id="3_tex"]
-[ext_resource type="Texture2D" path="res://Assets/terrain/light_green_grass/top_left_edge.png" id="4_tex"]
-[ext_resource type="Texture2D" path="res://Assets/terrain/light_green_grass/top_right_edge.png" id="5_tex"]
+[ext_resource type="Script" uid="uid://bf8xr7sg0h8fa" path="res://Scripts/obstacle.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://b5eg1u65855qn" path="res://Assets/terrain/light_green_grass/top_2.png" id="2_tex"]
+[ext_resource type="Texture2D" uid="uid://do3asg6l7n8tb" path="res://Assets/terrain/light_green_grass/top_3.png" id="3_tex"]
+[ext_resource type="Texture2D" uid="uid://c2sngqiy0y07u" path="res://Assets/terrain/light_green_grass/top_left_edge.png" id="4_tex"]
+[ext_resource type="Texture2D" uid="uid://cbuw7kdlrsyfc" path="res://Assets/terrain/light_green_grass/top_right_edge.png" id="5_tex"]
+[ext_resource type="PackedScene" uid="uid://b1v26s3jk3s5a" path="res://Scenes/obstacles/wall_body.tscn" id="6_ikomv"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_col"]
-size = Vector2(491.52, 87.0)
+size = Vector2(453, 596.5)
 
-[node name="BermWide" type="StaticBody2D"]
-collision_layer = 1
+[node name="BermWide" type="StaticBody2D" unique_id=1147580278]
 collision_mask = 0
 script = ExtResource("1_script")
 
-[node name="Tile_0_0" type="Sprite2D" parent="."]
-centered = false
+[node name="Tile_0_0" type="Sprite2D" parent="." unique_id=1418242102]
 position = Vector2(0, -128)
 texture = ExtResource("4_tex")
-
-[node name="Tile_1_0" type="Sprite2D" parent="."]
 centered = false
+
+[node name="Tile_1_0" type="Sprite2D" parent="." unique_id=696612055]
 position = Vector2(128, -128)
 texture = ExtResource("2_tex")
-
-[node name="Tile_2_0" type="Sprite2D" parent="."]
 centered = false
+
+[node name="Tile_2_0" type="Sprite2D" parent="." unique_id=1801433444]
 position = Vector2(256, -128)
 texture = ExtResource("3_tex")
-
-[node name="Tile_3_0" type="Sprite2D" parent="."]
 centered = false
+
+[node name="Tile_3_0" type="Sprite2D" parent="." unique_id=1124537161]
 position = Vector2(384, -128)
 texture = ExtResource("5_tex")
+centered = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(256.0, -43.5)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=858007229]
+position = Vector2(250.5, 196.75)
 shape = SubResource("RectangleShape2D_col")
+
+[node name="StaticBody2D" parent="." unique_id=1135241759 instance=ExtResource("6_ikomv")]
+position = Vector2(42, 183)

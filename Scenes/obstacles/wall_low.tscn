@@ -1,39 +1,31 @@
-[gd_scene load_steps=7 format=3 uid="uid://obstacle_wall_low"]
+[gd_scene format=3 uid="uid://bgpba4mlstqpk"]
 
-[ext_resource type="Script" path="res://Scripts/obstacle.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://Assets/terrain/light_green_grass/left_edge_vertical_grass_top_2.png" id="2_tex"]
-[ext_resource type="Texture2D" path="res://Assets/terrain/light_green_grass/right_edge_vertical_grass_top_2.png" id="3_tex"]
-[ext_resource type="Texture2D" path="res://Assets/terrain/light_green_grass/top_left_edge.png" id="4_tex"]
-[ext_resource type="Texture2D" path="res://Assets/terrain/light_green_grass/top_right_edge.png" id="5_tex"]
+[ext_resource type="Script" uid="uid://bf8xr7sg0h8fa" path="res://Scripts/obstacle.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://b1v26s3jk3s5a" path="res://Scenes/obstacles/wall_body.tscn" id="4_mtw1p"]
+[ext_resource type="Texture2D" uid="uid://c2sngqiy0y07u" path="res://Assets/terrain/light_green_grass/top_left_edge.png" id="4_tex"]
+[ext_resource type="Texture2D" uid="uid://cbuw7kdlrsyfc" path="res://Assets/terrain/light_green_grass/top_right_edge.png" id="5_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_col"]
-size = Vector2(245.76, 256.0)
+size = Vector2(216, 118)
 
-[node name="WallLow" type="StaticBody2D"]
-collision_layer = 1
+[node name="WallLow" type="StaticBody2D" unique_id=383826172]
 collision_mask = 0
 script = ExtResource("1_script")
 
-[node name="Tile_0_0" type="Sprite2D" parent="."]
-centered = false
+[node name="Tile_0_0" type="Sprite2D" parent="." unique_id=685964237]
 position = Vector2(0, -128)
 texture = ExtResource("4_tex")
-
-[node name="Tile_1_0" type="Sprite2D" parent="."]
 centered = false
+
+[node name="Tile_1_0" type="Sprite2D" parent="." unique_id=187161031]
 position = Vector2(128, -128)
 texture = ExtResource("5_tex")
-
-[node name="Tile_0_1" type="Sprite2D" parent="."]
 centered = false
-position = Vector2(0, -256)
-texture = ExtResource("2_tex")
 
-[node name="Tile_1_1" type="Sprite2D" parent="."]
-centered = false
-position = Vector2(128, -256)
-texture = ExtResource("3_tex")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(128.0, -128.0)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1069806293]
+position = Vector2(124, -41)
 shape = SubResource("RectangleShape2D_col")
+
+[node name="StaticBody2D" parent="." unique_id=1135241759 instance=ExtResource("4_mtw1p")]
+position = Vector2(36.999996, 177)
+scale = Vector2(0.4400006, 1)
