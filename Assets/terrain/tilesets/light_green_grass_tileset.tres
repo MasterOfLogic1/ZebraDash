@@ -1,0 +1,38 @@
+[gd_resource type="TileSet" format=3 uid="uid://seo02n6lj8up"]
+
+[ext_resource type="Texture2D" uid="uid://b7etpa7fs82hq" path="res://Assets/terrain/light_green_grass/top_1.png" id="1_nsch1"]
+[ext_resource type="Texture2D" uid="uid://b5eg1u65855qn" path="res://Assets/terrain/light_green_grass/top_2.png" id="2_flpme"]
+[ext_resource type="Texture2D" uid="uid://do3asg6l7n8tb" path="res://Assets/terrain/light_green_grass/top_3.png" id="3_6e5y4"]
+[ext_resource type="Texture2D" uid="uid://058ukb3ncqbk" path="res://Assets/terrain/light_green_grass/flat_color_inner_fill.png" id="4_fu1gx"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_nsch1"]
+texture = ExtResource("1_nsch1")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-64, -40.994797, 64, -40.994797, 64, 64, -64, 64)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_flpme"]
+texture = ExtResource("2_flpme")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-64, -40.994797, 64, -40.994797, 64, 64, -64, 64)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_6e5y4"]
+texture = ExtResource("3_6e5y4")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-64, -40.994797, 64, -40.994797, 64, 64, -64, 64)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fu1gx"]
+texture = ExtResource("4_fu1gx")
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-64, -64, 64, -64, 64, 64, -64, 64)
+
+[resource]
+tile_size = Vector2i(128, 128)
+physics_layer_0/collision_layer = 1
+sources/0 = SubResource("TileSetAtlasSource_nsch1")
+sources/1 = SubResource("TileSetAtlasSource_flpme")
+sources/2 = SubResource("TileSetAtlasSource_6e5y4")
+sources/3 = SubResource("TileSetAtlasSource_fu1gx")
