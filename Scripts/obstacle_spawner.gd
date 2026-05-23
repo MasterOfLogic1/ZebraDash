@@ -4,20 +4,23 @@ extends Node2D
 @export var player_path: NodePath = ^"../Player"
 @export var ground_path: NodePath = ^"../Ground"
 @export var camera_path: NodePath = ^"../Camera2D"
-@export var obstacle_scene: PackedScene = preload("res://Scenes/obstacle.tscn")
-@export var min_spawn_interval := 1.8
+## One scene per obstacle design — open these under Scenes/obstacles/ to edit.
+@export var obstacle_scenes: Array[PackedScene] = [
+	preload("res://Scenes/obstacles/berm_small.tscn"),
+	preload("res://Scenes/obstacles/berm_wide.tscn"),
+	preload("res://Scenes/obstacles/wall_low.tscn"),
+	preload("res://Scenes/obstacles/wall_tall.tscn"),
+	preload("res://Scenes/obstacles/floating_platform.tscn"),
+]
+@export var preview_scene_index := 3
+@export var min_spawn_interval := 2.0
 @export var max_spawn_interval := 4.5
 @export var spawn_beyond_screen_min := 120.0
 @export var spawn_beyond_screen_max := 420.0
-@export var min_spacing := 280.0
-@export var cleanup_behind_distance := 600.0
+@export var min_spacing := 320.0
+@export var cleanup_behind_distance := 700.0
+@export var max_active_obstacles := 24
 @export var show_editor_preview := true
-@export_range(1, 8, 1) var min_pieces_horizontal := 1
-@export_range(1, 8, 1) var max_pieces_horizontal := 3
-@export_range(1, 4, 1) var min_pieces_vertical := 1
-@export_range(1, 4, 1) var max_pieces_vertical := 2
-@export var preview_pieces_horizontal := 2
-@export var preview_pieces_vertical := 2
 
 const TILE_SIZE := float(TerrainCatalog.TILE_SIZE.x)
 const EDITOR_PREVIEW_NAME := "EditorPreview"
@@ -58,22 +61,16 @@ func _refresh_editor_preview() -> void:
 		return
 
 	_remove_editor_preview()
-	if not show_editor_preview or obstacle_scene == null:
+	if not show_editor_preview or obstacle_scenes.is_empty():
 		return
 
 	var player := get_node_or_null(player_path) as Node2D
 	var preview_x := 400.0
 	if player:
-		preview_x = player.global_position.x + 360.0
+		preview_x = player.global_position.x + 400.0
 
-	var surface_y := _get_ground_surface_y_at(preview_x)
-	var obstacle := obstacle_scene.instantiate()
-	obstacle.name = EDITOR_PREVIEW_NAME
-	_apply_terrain_style(obstacle)
-	if obstacle.has_method("configure"):
-		obstacle.configure(preview_pieces_horizontal, preview_pieces_vertical)
-	obstacle.global_position = Vector2(preview_x, surface_y)
-	add_child(obstacle)
+	var index := clampi(preview_scene_index, 0, obstacle_scenes.size() - 1)
+	_spawn_scene_at(preview_x, obstacle_scenes[index], EDITOR_PREVIEW_NAME)
 
 
 func _remove_editor_preview() -> void:
@@ -83,30 +80,55 @@ func _remove_editor_preview() -> void:
 
 
 func _try_spawn_obstacle() -> void:
+	if obstacle_scenes.is_empty():
+		return
+	if _count_active_obstacles() >= max_active_obstacles:
+		_cleanup_obstacles()
+		if _count_active_obstacles() >= max_active_obstacles:
+			return
+
 	var spawn_x := _get_offscreen_spawn_x()
 	if absf(spawn_x - _last_spawn_x) < min_spacing:
 		return
 
 	spawn_x = snappedf(spawn_x, TILE_SIZE)
+	var scene := obstacle_scenes[randi() % obstacle_scenes.size()]
+	_spawn_scene_at(spawn_x, scene)
+
+
+func _spawn_scene_at(spawn_x: float, scene: PackedScene, custom_name: String = "") -> void:
+	if scene == null:
+		return
 
 	var surface_y := _get_ground_surface_y_at(spawn_x)
-	var obstacle := obstacle_scene.instantiate()
-	_apply_terrain_style(obstacle)
-	if obstacle.has_method("configure"):
-		obstacle.configure(
-			randi_range(mini(min_pieces_horizontal, max_pieces_horizontal), maxi(min_pieces_horizontal, max_pieces_horizontal)),
-			randi_range(mini(min_pieces_vertical, max_pieces_vertical), maxi(min_pieces_vertical, max_pieces_vertical))
-		)
-	obstacle.global_position = Vector2(spawn_x, surface_y)
+	var obstacle := scene.instantiate()
+	if custom_name != "":
+		obstacle.name = custom_name
+
+	var spawn_y := surface_y
+	if obstacle.has_method("is_floating") and obstacle.is_floating():
+		var elevation := 0
+		if "elevation_tiles" in obstacle:
+			elevation = obstacle.elevation_tiles
+		spawn_y -= float(elevation) * TILE_SIZE
+
+	obstacle.global_position = Vector2(spawn_x, spawn_y)
 	add_child(obstacle)
-	_last_spawn_x = spawn_x
+
+	if obstacle.has_method("get_spawn_width"):
+		_last_spawn_x = spawn_x + obstacle.get_spawn_width()
+	else:
+		_last_spawn_x = spawn_x
 
 
-func _apply_terrain_style(obstacle: Node) -> void:
-	if _ground == null:
-		_ground = get_node_or_null(ground_path) as Node2D
-	if _ground and "terrain_style" in _ground:
-		obstacle.terrain_style = _ground.terrain_style
+func _count_active_obstacles() -> int:
+	var count := 0
+	for child in get_children():
+		if child.name == EDITOR_PREVIEW_NAME:
+			continue
+		if child is StaticBody2D and is_instance_valid(child):
+			count += 1
+	return count
 
 
 func _get_offscreen_spawn_x() -> float:
@@ -153,15 +175,20 @@ func _cleanup_obstacles() -> void:
 	if facing == 0.0:
 		facing = 1.0
 
+	var to_remove: Array[Node] = []
 	for child in get_children():
 		if child.name == EDITOR_PREVIEW_NAME:
 			continue
-		if child is StaticBody2D:
-			var behind: bool = child.global_position.x < _player.global_position.x - cleanup_behind_distance
-			if facing < 0.0:
-				behind = child.global_position.x > _player.global_position.x + cleanup_behind_distance
-			if behind:
-				child.queue_free()
+		if not child is StaticBody2D or not is_instance_valid(child):
+			continue
+		var behind: bool = child.global_position.x < _player.global_position.x - cleanup_behind_distance
+		if facing < 0.0:
+			behind = child.global_position.x > _player.global_position.x + cleanup_behind_distance
+		if behind:
+			to_remove.append(child)
+
+	for child in to_remove:
+		child.queue_free()
 
 
 func _reset_spawn_timer() -> void:

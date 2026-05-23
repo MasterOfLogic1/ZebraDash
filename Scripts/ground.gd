@@ -1,4 +1,3 @@
-@tool
 extends Node2D
 
 @export var player_path: NodePath = ^"../Player"
@@ -16,6 +15,7 @@ const TILE_SIZE: Vector2i = TerrainCatalog.TILE_SIZE
 var _player: Node2D
 var _generated_min := 0
 var _generated_max := -1
+var _tiles_dirty := false
 var _fill_source_id := TerrainCatalog.get_fill_source_id()
 var _top_source_ids: Array[int] = TerrainCatalog.get_top_source_ids()
 
@@ -45,9 +45,6 @@ func _setup_ground() -> void:
 	var center := 0
 	if not Engine.is_editor_hint() and _player:
 		center = _get_player_tile_x()
-	elif Engine.is_editor_hint():
-		center = 32
-
 	_generated_min = center - buffer_tiles_behind
 	_generated_max = center + buffer_tiles_ahead
 	for x in range(_generated_min, _generated_max + 1):
@@ -56,6 +53,7 @@ func _setup_ground() -> void:
 
 
 func _update_infinite_ground() -> void:
+	_tiles_dirty = false
 	var center := _get_player_tile_x()
 	var want_min := center - buffer_tiles_behind
 	var want_max := center + buffer_tiles_ahead
@@ -77,6 +75,9 @@ func _update_infinite_ground() -> void:
 		_erase_ground_column(_generated_max)
 		_generated_max -= 1
 
+	if _tiles_dirty:
+		ground_layer.update_internals()
+
 
 func _get_player_tile_x() -> int:
 	var local_pos := ground_layer.to_local(_player.global_position)
@@ -87,16 +88,20 @@ func _set_ground_column(x: int) -> void:
 	if ground_layer.get_cell_source_id(Vector2i(x, 0)) == -1:
 		var top_source := _top_source_ids[randi() % _top_source_ids.size()]
 		ground_layer.set_cell(Vector2i(x, 0), top_source, Vector2i.ZERO)
+		_tiles_dirty = true
 
 	for y in range(1, ground_fill_depth_tiles + 1):
 		var coords := Vector2i(x, y)
 		if ground_layer.get_cell_source_id(coords) == -1:
 			ground_layer.set_cell(coords, _fill_source_id, Vector2i.ZERO)
+			_tiles_dirty = true
 
 
 func _erase_ground_column(x: int) -> void:
 	for y in range(0, ground_fill_depth_tiles + 1):
-		ground_layer.erase_cell(Vector2i(x, y))
+		if ground_layer.get_cell_source_id(Vector2i(x, y)) != -1:
+			ground_layer.erase_cell(Vector2i(x, y))
+			_tiles_dirty = true
 
 
 func _get_or_create_tileset() -> TileSet:

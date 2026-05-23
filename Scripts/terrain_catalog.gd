@@ -22,14 +22,76 @@ const TOP_VARIANTS := [
 
 const FILL_TILE := "flat_color_inner_fill.png"
 
-const ROCK_OBSTACLE_PIECES := [
-	"one_edge_platform_rock_1.png",
-	"one_edge_platform_rock_2.png",
-	"left_edge_rock_1.png",
-	"left_edge_rock_2.png",
-	"right_edge_rock_1.png",
-	"right_edge_rock_2.png",
-]
+enum ObstacleKind {
+	## Low grass cap sitting on the runway (2–5 tiles wide).
+	GROUND_BERM,
+	## Grass-topped block with dirt sides (must jump).
+	GROUND_WALL,
+	## Floating island the zebra can land on above the runway.
+	FLOATING_PLATFORM,
+}
+
+
+static func obstacle_tile_filename(
+	kind: ObstacleKind,
+	col: int,
+	row: int,
+	width: int,
+	height: int
+) -> String:
+	match kind:
+		ObstacleKind.FLOATING_PLATFORM:
+			return _floating_platform_tile(col, width)
+		ObstacleKind.GROUND_BERM:
+			return _ground_surface_tile(col, width)
+		ObstacleKind.GROUND_WALL:
+			if row == 0:
+				return _ground_surface_tile(col, width)
+			return _wall_body_tile(col, row, width, height)
+		_:
+			return _ground_surface_tile(col, width)
+
+
+static func obstacle_footprint_tiles(kind: ObstacleKind, width: int, height: int) -> Vector2i:
+	match kind:
+		ObstacleKind.FLOATING_PLATFORM:
+			return Vector2i(width, 1)
+		_:
+			return Vector2i(width, height)
+
+
+static func _ground_surface_tile(col: int, width: int) -> String:
+	if width <= 1:
+		return "top_edge_one_tile_platform.png"
+	if col == 0:
+		return "top_left_edge.png"
+	if col >= width - 1:
+		return "top_right_edge.png"
+	return TOP_VARIANTS[col % TOP_VARIANTS.size()]
+
+
+static func _floating_platform_tile(col: int, width: int) -> String:
+	if width <= 1:
+		return "top_edge_one_tile_platform.png"
+	if col == 0:
+		return "left_edge_floating_platform.png"
+	if col >= width - 1:
+		return "right_edge_floating_platform.png"
+	return "center_of_floating_platform.png"
+
+
+static func _wall_body_tile(col: int, row: int, width: int, height: int) -> String:
+	if width <= 1:
+		return "flat_color_inner_fill.png"
+	if col == 0:
+		var variant := 1 + (row % 2)
+		return "left_edge_vertical_grass_top_%d.png" % variant
+	if col >= width - 1:
+		var variant_r := 1 + (row % 2)
+		return "right_edge_vertical_grass_top_%d.png" % variant_r
+	if row >= height - 1 and height > 2:
+		return "upper_straight_edge_%d.png" % (1 + (col % 2))
+	return FILL_TILE
 
 
 static func get_theme_dir(style: TerrainStyle) -> String:
